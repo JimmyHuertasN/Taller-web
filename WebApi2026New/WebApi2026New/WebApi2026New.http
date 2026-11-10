@@ -1,0 +1,37 @@
+@host = https://localhost:7186
+
+### 1. Registrar una persona (la contraseña se guarda con BCrypt)
+POST {{host}}/api/Auth/registro
+Content-Type: application/json
+
+{
+  "nombre": "Ana",
+  "apellido": "Pérez",
+  "edad": 21,
+  "correo": "ana@upc.edu.co",
+  "password": "ClaveSegura2026*"
+}
+
+### 2. Iniciar sesión
+# @name login
+POST {{host}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "correo": "ana@upc.edu.co",
+  "password": "ClaveSegura2026*"
+}
+
+### 3. Sin token -> 401
+GET {{host}}/api/Personas
+
+###
+@token = {{login.response.body.$.token}}
+
+### 4. Con token -> 200
+GET {{host}}/api/Personas
+Authorization: Bearer {{token}}
+
+### 5. Ver los claims del usuario autenticado
+GET {{host}}/api/Auth/yo
+Authorization: Bearer {{token}}
