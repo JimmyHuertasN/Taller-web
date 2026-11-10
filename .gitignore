@@ -1,0 +1,10 @@
+# .NET build output and IDE state
+**/bin/
+**/obj/
+**/.vs/
+*.user
+*.suo
+
+# Local development secrets and environment overrides
+**/appsettings.Development.json
+**/appsettings.*.local.json
