@@ -10,18 +10,27 @@ public partial class AgregarEdadPersona : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.AddColumn<int>(
-            name: "edad",
+        migrationBuilder.Sql("""
+            IF COL_LENGTH(N'dbo.Personas', N'edad') IS NULL
+            BEGIN
+                ALTER TABLE [dbo].[Personas]
+                ADD [edad] int NOT NULL
+                    CONSTRAINT [DF_Personas_edad] DEFAULT (0);
+            END;
+            """);
+
+        migrationBuilder.AlterColumn<string>(
+            name: "password",
             table: "Personas",
-            type: "int",
+            type: "nvarchar(max)",
             nullable: false,
-            defaultValue: 0);
+            oldClrType: typeof(int),
+            oldType: "int");
     }
 
     protected override void Down(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.DropColumn(
-            name: "edad",
-            table: "Personas");
+        throw new NotSupportedException(
+            "No se revierte esta migración porque las contraseñas pueden contener hashes BCrypt no convertibles a int.");
     }
 }
