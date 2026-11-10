@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -52,13 +53,25 @@ builder.Services.AddOpenApi(options =>
             BearerFormat = "JWT",
             Description = "Pega aquí el token que devuelve POST /api/Auth/login"
         };
-        document.Security =
-        [
-            new OpenApiSecurityRequirement
-            {
-                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
-            }
-        ];
+        return Task.CompletedTask;
+    });
+    options.AddOperationTransformer((operation, context, cancellationToken) =>
+    {
+        var endpointMetadata = context.Description.ActionDescriptor.EndpointMetadata;
+        var requiresAuthorization = endpointMetadata.OfType<IAuthorizeData>().Any()
+            && !endpointMetadata.OfType<IAllowAnonymous>().Any();
+
+        if (requiresAuthorization)
+        {
+            operation.Security =
+            [
+                new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("Bearer", context.Document)] = []
+                }
+            ];
+        }
+
         return Task.CompletedTask;
     });
 });
